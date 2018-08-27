@@ -70,7 +70,7 @@ for (let row = 0; row < ROWS; row++) {
 redCache = []
 yellowCache = []
 
-for (let i = 0; i < (ROWS * COLS) / 2; i++) {
+for (let i = 0; i < ROWS * COLS; i++) {
   const red = two.makeCircle(-1000000, -100000, CELL_SIZE / 2)
   const yellow = two.makeCircle(-1000000, -100000, CELL_SIZE / 2)
   red.fill = RED
@@ -110,7 +110,7 @@ function piecesDuringFlip(t) {
         finalPos = {x: prePos.x, y: lerpedY}
       }
 
-      const idx = colId * rowId
+      const idx = rowId * COLS + colId
       if (color) {
         redCache[idx].translation.set(finalPos.x, finalPos.y)
       } else {
@@ -131,8 +131,24 @@ function resetPieces() {
   }
 }
 
+function invertGame() {
+  testGame.reverse()
+  for (let col of testGame) {
+    col.reverse()
+  }
+}
+
+let lastT = null
+
 two.bind('update', frameCount => {
   const t = (frameCount % (60 * FLIP_PERIOD)) / (60 * FLIP_PERIOD)
+  if (lastT == null) {
+    lastT = t
+  } else if (t < lastT) {
+    invertGame()
+  }
+  lastT = t
+
   resetPieces()
   piecesDuringFlip(t)
   const rot = Math.PI * smoothStep(t)
